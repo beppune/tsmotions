@@ -43,17 +43,35 @@ local function walk()
 	local after = nil
 
 	for _, node in ipairs(nodes) do
-		local a, b, c, d = node:range()
+		before = after
+		after = node
 
 		if is_after_cursor(node, r - 1, v) then
-			print( vim.treesitter.get_node_text(node, bufnr) .. ": sr:" .. a .. ", sc:" .. b .. ", er:" .. c .. ", ec:" .. d .. " cursor: " .. r .. ", " .. v )
+			break
 		end
 	end
 
+	if not is_after_cursor(after, r - 1, v) then
+		after = nil
+	end
+
+	return { before, after }
+
+end
+
+local function debug_node(node)
+	if node == nil then print("nіl node") return end
+	
+	local r, v = unpack(vim.api.nvim_win_get_cursor(0))
+	local bufnr = vim.api.nvim_win_get_buf(0)
+	local a, b, c, d = node:range()
+	print( vim.treesitter.get_node_text(node, bufnr) .. ": sr:" .. a .. ", sc:" .. b .. ", er:" .. c .. ", ec:" .. d .. " cursor: " .. r .. ", " .. v )
 end
 
 M.Next = function()
-	walk()
+	local before, after = unpack(walk())
+	debug_node(before)
+	debug_node(after)
 end
 
 return M
