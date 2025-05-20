@@ -44,10 +44,12 @@ local function walk()
 	local nodes = get_node_of_type(root, 'identifier', nil)
 	
 	local before = nil
+	local current = nil
 	local after = nil
 
 	for _, node in ipairs(nodes) do
-		before = after
+		before = current
+		current = after
 		after = node
 
 		-- this test is useless for the last element of the list
@@ -83,6 +85,14 @@ M.NextId = function()
 	local _, after = unpack(walk())
 	if after ~= nil then
 		local sr, sc = after:range()
+		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
+	end
+end
+
+M.PrevId = function()
+	local before = unpack(walk())
+	if before ~= nil then
+		local sr, sc = before:range()
 		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
 	end
 end
