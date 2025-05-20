@@ -8,39 +8,51 @@ function get_tree()
 	return nil
 end
 
-local queries = {
-	identifier = '(identifier) @id'
-}
+local function get_node_of_type(node, type_name, list)
+	list = list or {}
 
-local function walk(before)
+	if node:type() == type_name then
+		table.insert(list, node)
+	end
+
+	for i = 0, node:child_count() -1 do
+		child = node:child(i)
+		get_node_of_type(child, type_name, list)
+	end
+	return list
+end
+
+local function is_after_cursor(node, r, c)
+	local sr, sc, er, ec = node:range()
+	return r < sr or (r == sr and c < sc)
+end
+
+local function walk()
 	local tree = get_tree()
 	if tree == nil then return nil end
-	
-	local q = vim.treesitter.query.parse(vim.o.filetype, queries['identifier'])
-	if q == nil then return nil end
 
-	
 	local root = tree:root()
 
-	local r, c = unpack(vim.api.nvim_win_get_cursor(0))
-	local from = -1
-	local to = r
-	print(after)
-	
-	if before ~= nil and before then
-		from = r
-		to, _, _ = root:end_()
-	end
+	local r, v = unpack(vim.api.nvim_win_get_cursor(0))
 
 	local bufnr = vim.api.nvim_win_get_buf(0)
 
-	for id, node, meta in q:iter_captures(tree:root(), bufnr, r) do
-		vim.print( vim.treesitter.get_node_text(node, bufnr) .. " " .. node:range())
+	local nodes = get_node_of_type(root, 'identifier', nil)
+	
+	local before = nil
+	local after = nil
+
+	for _, node in ipairs(nodes) do
+		local a, b, c, d = node:range()
+
+		if is_after_cursor(node, r - 1, v) then
+			print( vim.treesitter.get_node_text(node, bufnr) .. ": sr:" .. a .. ", sc:" .. b .. ", er:" .. c .. ", ec:" .. d .. " cursor: " .. r .. ", " .. v )
+		end
 	end
 
 end
 
-M.Print = function()
+M.Next = function()
 	walk()
 end
 
