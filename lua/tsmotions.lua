@@ -8,6 +8,7 @@ function get_tree()
 	return nil
 end
 
+-- Recursively fills a list of nodes of a given type
 local function get_node_of_type(node, type_name, list)
 	list = list or {}
 
@@ -22,11 +23,14 @@ local function get_node_of_type(node, type_name, list)
 	return list
 end
 
+-- True if given node is after the cursor position
 local function is_after_cursor(node, r, c)
 	local sr, sc, er, ec = node:range()
 	return r < sr or (r == sr and c < sc)
 end
 
+-- Walks the tree from the root node and returns the two 'identifier' nodes
+-- before and after the cursor position, or nil if there isn't any or none
 local function walk()
 	local tree = get_tree()
 	if tree == nil then return nil end
@@ -46,11 +50,16 @@ local function walk()
 		before = after
 		after = node
 
+		-- this test is useless for the last element of the list
+		-- since it breaks from the for loop anyways (see below).
 		if is_after_cursor(node, r - 1, v) then
 			break
 		end
 	end
 
+	-- After the for loop іs not clear if the last node of the list
+	-- passed the inner if test so here 'after' is properly assigned nil
+	-- if effectivley there is no node ot type 'identifier' after the cursor
 	if not is_after_cursor(after, r - 1, v) then
 		after = nil
 	end
@@ -59,6 +68,7 @@ local function walk()
 
 end
 
+-- Prints node. Only for debug purpose
 local function debug_node(node)
 	if node == nil then print("nіl node") return end
 	
@@ -68,10 +78,13 @@ local function debug_node(node)
 	print( vim.treesitter.get_node_text(node, bufnr) .. ": sr:" .. a .. ", sc:" .. b .. ", er:" .. c .. ", ec:" .. d .. " cursor: " .. r .. ", " .. v )
 end
 
-M.Next = function()
-	local before, after = unpack(walk())
-	debug_node(before)
-	debug_node(after)
+-- Module API
+M.NextId = function()
+	local _, after = unpack(walk())
+	if after ~= nil then
+		local sr, sc = after:range()
+		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
+	end
 end
 
 return M
