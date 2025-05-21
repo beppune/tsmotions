@@ -1,4 +1,3 @@
-local M = require 'tsmotions'
 
 -- <Plugin> mappings for tsmotions
 vim.keymap.set('n', '<Plug>(MoveToNextId)', ':lua package.loaded.tsmotions.NextId()<Enter>', { noremap = true }   )

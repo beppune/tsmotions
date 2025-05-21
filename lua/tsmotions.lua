@@ -29,6 +29,12 @@ local function is_after_cursor(node, r, c)
 	return r < sr or (r == sr and c < sc)
 end
 
+-- True if given node is around cursor position
+local function is_around_cursor(node, r, c)
+	local sr, sc, er, ec = node:range()
+	return r == sr and sc <= c and c < ec
+end
+
 -- Walks the tree from the root node and returns the two 'identifier' nodes
 -- before and after the cursor position, or nil if there isn't any or none
 local function walk()
@@ -42,20 +48,23 @@ local function walk()
 	local bufnr = vim.api.nvim_win_get_buf(0)
 
 	local nodes = get_node_of_type(root, 'identifier', nil)
-	
+
 	local before = nil
-	local current = nil
 	local after = nil
 
 	for _, node in ipairs(nodes) do
-		before = current
-		current = after
-		after = node
+		-- skip if node is around cursor, otherwise 
+		-- it will count as previous node
+		if not is_around_cursor(node, r - 1, v) then
 
-		-- this test is useless for the last element of the list
-		-- since it breaks from the for loop anyways (see below).
-		if is_after_cursor(node, r - 1, v) then
-			break
+			before = after
+			after = node
+
+			-- this test is useless for the last element of the list
+			-- since it breaks from the for loop anyways (see below).
+			if is_after_cursor(node, r - 1, v) then
+				break
+			end
 		end
 	end
 
@@ -73,7 +82,7 @@ end
 -- Prints node. Only for debug purpose
 local function debug_node(node)
 	if node == nil then print("nіl node") return end
-	
+
 	local r, v = unpack(vim.api.nvim_win_get_cursor(0))
 	local bufnr = vim.api.nvim_win_get_buf(0)
 	local a, b, c, d = node:range()
