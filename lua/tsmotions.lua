@@ -1,11 +1,34 @@
 local M = {}
 
+-- Prints node. Only for debug purpose
+local function debug_node(node)
+	if node == nil then print("nіl node") return end
+
+	local r, v = unpack(vim.api.nvim_win_get_cursor(0))
+	local bufnr = vim.api.nvim_win_get_buf(0)
+	local a, b, c, d = node:range()
+	print( vim.treesitter.get_node_text(node, bufnr) .. ": sr:" .. a .. ", sc:" .. b .. ", er:" .. c .. ", ec:" .. d .. " cursor: " .. r .. ", " .. v )
+end
+
 function get_tree()
 	p = vim.treesitter.get_parser(0, nil, { error = false })
 	if p ~= nil then
 		return p:parse()[1]
 	end
 	return nil
+end
+
+function M.query()
+	local query = vim.treesitter.query.parse(vim.bo.filetype, [[
+		([
+			(function_declaration (block) @function.block)
+			(function_definition (block) @function.block)
+		])	
+	]])
+	local tree = vim.treesitter.get_parser():parse()[1]
+	for id, node, metadata in query:iter_captures(tree:root(), 0) do
+		debug_node(node)
+	end
 end
 
 -- Recursively fills a list of nodes of a given type
@@ -77,16 +100,6 @@ local function walk()
 
 	return { before, after }
 
-end
-
--- Prints node. Only for debug purpose
-local function debug_node(node)
-	if node == nil then print("nіl node") return end
-
-	local r, v = unpack(vim.api.nvim_win_get_cursor(0))
-	local bufnr = vim.api.nvim_win_get_buf(0)
-	local a, b, c, d = node:range()
-	print( vim.treesitter.get_node_text(node, bufnr) .. ": sr:" .. a .. ", sc:" .. b .. ", er:" .. c .. ", ec:" .. d .. " cursor: " .. r .. ", " .. v )
 end
 
 -- Module API
