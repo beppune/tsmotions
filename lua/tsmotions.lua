@@ -10,25 +10,12 @@ local function debug_node(node)
 	print( vim.treesitter.get_node_text(node, bufnr) .. ": sr:" .. a .. ", sc:" .. b .. ", er:" .. c .. ", ec:" .. d .. " cursor: " .. r .. ", " .. v )
 end
 
-function get_tree()
+local function get_tree()
 	p = vim.treesitter.get_parser(0, nil, { error = false })
 	if p ~= nil then
 		return p:parse()[1]
 	end
 	return nil
-end
-
-function M.query()
-	local query = vim.treesitter.query.parse(vim.bo.filetype, [[
-		([
-			(function_declaration (block) @function.block)
-			(function_definition (block) @function.block)
-		])	
-	]])
-	local tree = vim.treesitter.get_parser():parse()[1]
-	for id, node, metadata in query:iter_captures(tree:root(), 0) do
-		debug_node(node)
-	end
 end
 
 -- Recursively fills a list of nodes of a given type
@@ -46,9 +33,8 @@ local function get_node_of_type(node, type_name, list)
 	return list
 end
 
+-- Return an iterator based on an node list
 local function type_name_iterator(nodes)
-	if nodes == nil then return nil end
-
 	local n = table.getn(nodes)
 	local i = 0
 
@@ -58,6 +44,18 @@ local function type_name_iterator(nodes)
 			return nodes[i]
 		end
 	end
+end
+
+-- Return a node iterator base on a ts query
+local function ts_query_iterator(root, query)
+	local query = vim.treesitter.query.parse(vim.bo.filetype, query)
+	local captures = query:iter_captures(root, 0)
+
+	return function()
+		local _, node = captures()
+		return node
+	end
+
 end
 
 -- True if given node is after the cursor position
@@ -74,7 +72,7 @@ end
 
 -- Walks the tree from the root node and returns the two 'identifier' nodes
 -- before and after the cursor position, or nil if there isn't any or none
-local function walk()
+local function walk(query)
 	local tree = get_tree()
 	if tree == nil then return nil end
 
@@ -84,9 +82,13 @@ local function walk()
 
 	local bufnr = vim.api.nvim_win_get_buf(0)
 
-	local nodes = get_node_of_type(root, 'identifier', nil)
-
-	local iterator = type_name_iterator(nodes)
+	local iterator = nil
+	if query == nil then
+		local nodes = get_node_of_type(root, 'identifier', nil)
+		iterator = type_name_iterator(nodes)
+	else
+		iterator = ts_query_iterator(root, query)
+	end
 
 	local before = nil
 	local after = nil
@@ -129,6 +131,30 @@ end
 
 M.PrevId = function()
 	local before = unpack(walk())
+	if before ~= nil then
+		local sr, sc = before:range()
+		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
+	end
+end
+
+local block_query = [[
+	([
+		(function_declaration (block) @function.block)
+		(function_definition (block) @function.block)
+	])	
+]]
+
+M.NextBlock = function()
+
+	local _, after = unpack(walk(block_query))
+	if after ~= nil then
+		local sr, sc = after:range()
+		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
+	end
+end
+
+M.PrevBlock = function()
+	local before = unpack(walk(block_query))
 	if before ~= nil then
 		local sr, sc = before:range()
 		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
