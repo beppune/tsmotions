@@ -120,21 +120,22 @@ local function walk(query)
 
 end
 
--- Module API
-M.NextId = function()
-	local _, after = unpack(walk())
-	if after ~= nil then
-		local sr, sc = after:range()
+local function place_at_node(node)
+	if node ~= nil then
+		local sr, sc = node:range()
 		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
 	end
 end
 
+-- Module API
+M.NextId = function()
+	local _, after = unpack(walk())
+	place_at_node(after)
+end
+
 M.PrevId = function()
 	local before = unpack(walk())
-	if before ~= nil then
-		local sr, sc = before:range()
-		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
-	end
+	place_at_node(before)
 end
 
 local block_query = [[
@@ -145,20 +146,13 @@ local block_query = [[
 ]]
 
 M.NextBlock = function()
-
 	local _, after = unpack(walk(block_query))
-	if after ~= nil then
-		local sr, sc = after:range()
-		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
-	end
+	place_at_node(after)
 end
 
 M.PrevBlock = function()
 	local before = unpack(walk(block_query))
-	if before ~= nil then
-		local sr, sc = before:range()
-		vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
-	end
+	place_at_node(before)
 end
 
 return M
