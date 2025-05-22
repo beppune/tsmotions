@@ -1,3 +1,4 @@
 
-require 'tsmotions'
+require('tsmotions')
+require('usercommands')
 

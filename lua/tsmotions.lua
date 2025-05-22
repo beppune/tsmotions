@@ -72,7 +72,13 @@ end
 
 -- Walks the tree from the root node and returns the two 'identifier' nodes
 -- before and after the cursor position, or nil if there isn't any or none
-local function walk(query)
+local function walk(conf)
+
+	conf = conf or {
+		type = 'node_type',
+		query = 'identifier'
+	}
+
 	local tree = get_tree()
 	if tree == nil then return nil end
 
@@ -83,8 +89,8 @@ local function walk(query)
 	local bufnr = vim.api.nvim_win_get_buf(0)
 
 	local iterator = nil
-	if query == nil then
-		local nodes = get_node_of_type(root, 'identifier', nil)
+	if conf.type == 'node_type' then
+		local nodes = get_node_of_type(root, conf.query, nil)
 		iterator = type_name_iterator(nodes)
 	else
 		iterator = ts_query_iterator(root, query)
@@ -152,6 +158,24 @@ end
 
 M.PrevBlock = function()
 	local before = unpack(walk(block_query))
+	place_at_node(before)
+end
+
+M.NextTypeName = function(type_name)
+	local args = {
+		type = 'node_type',
+		query = type_name,
+	}
+	local _, after = unpack( walk(args) )
+	place_at_node(before)
+end
+
+M.PrevTypeName = function(type_name)
+	local args = {
+		type = 'node_type',
+		query = type_name,
+	}
+	local before = unpack( walk(args) )
 	place_at_node(before)
 end
 
