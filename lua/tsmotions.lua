@@ -46,6 +46,20 @@ local function get_node_of_type(node, type_name, list)
 	return list
 end
 
+local function type_name_iterator(nodes)
+	if nodes == nil then return nil end
+
+	local n = table.getn(nodes)
+	local i = 0
+
+	return function()
+		i = i + 1
+		if i <= n then
+			return nodes[i]
+		end
+	end
+end
+
 -- True if given node is after the cursor position
 local function is_after_cursor(node, r, c)
 	local sr, sc, er, ec = node:range()
@@ -72,10 +86,12 @@ local function walk()
 
 	local nodes = get_node_of_type(root, 'identifier', nil)
 
+	local iterator = type_name_iterator(nodes)
+
 	local before = nil
 	local after = nil
 
-	for _, node in ipairs(nodes) do
+	for node in iterator do
 		-- skip if node is around cursor, otherwise 
 		-- it will count as previous node
 		if not is_around_cursor(node, r - 1, v) then
