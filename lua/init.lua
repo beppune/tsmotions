@@ -1,4 +1,0 @@
-
-require('tsmotions')
-require('usercommands')
-

@@ -1,7 +1,8 @@
 
-local M = require('tsmotions')
-print("User Commands")
-vim.api.nvim_user_command(
+local M = require('tsmotions.core')
+require('tsmotions.mappings')
+
+vim.api.nvim_create_user_command(
 	'TMNextTypeName',
 	function(opts)
 		M.NextTypeName( opts.fargs[1] )
@@ -9,11 +10,10 @@ vim.api.nvim_user_command(
 	{ nargs = 1}
 )
 
-vim.api.nvim_user_command(
+vim.api.nvim_create_user_command(
 	'TMPrevTypeName',
 	function(opts)
 		M.PrevTypeName( opts.fargs[1] )
 	end,
 	{ nargs = 1}
 )
-
