@@ -173,7 +173,7 @@ M.NextTypeName = function(type_name)
 		query = type_name,
 	}
 	local _, after = unpack( walk(args) )
-	place_at_node(before)
+	place_at_node(after)
 end
 
 M.PrevTypeName = function(type_name)
