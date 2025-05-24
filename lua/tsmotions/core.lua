@@ -67,7 +67,13 @@ end
 -- True if given node is around cursor position
 local function is_around_cursor(node, r, c)
 	local sr, sc, er, ec = node:range()
-	return r == sr and sc <= c and c < ec
+
+	if r == sr and sc <= c and c < ec then return true end
+	if r == er and sc <= c and c < ec then return true end
+	if sr < r and r < er then return true end
+
+	return false
+	
 end
 
 -- Walks the tree from the root node and returns the two 'identifier' nodes
