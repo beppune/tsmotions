@@ -140,30 +140,21 @@ local function place_at_node(node)
 end
 
 -- Module API
-M.NextId = function()
-	local _, after = unpack(walk())
+M.NextQuery = function(q)
+	local args = {
+		type = 'query',
+		query = q
+	}
+	local _, after = unpack(walk(args))
 	place_at_node(after)
 end
 
-M.PrevId = function()
-	local before = unpack(walk())
-	place_at_node(before)
-end
-
-local block_query = [[
-	([
-		(function_declaration (block) @function.block)
-		(function_definition (block) @function.block)
-	])	
-]]
-
-M.NextBlock = function()
-	local _, after = unpack(walk(block_query))
-	place_at_node(after)
-end
-
-M.PrevBlock = function()
-	local before = unpack(walk(block_query))
+M.PrevQuery = function(q)
+	local args = {
+		type = 'query',
+		query = q
+	}
+	local before = unpack(walk(args))
 	place_at_node(before)
 end
 
