@@ -1,7 +1,7 @@
 
 local M = require('tsmotions.core')
-require('tsmotions.mappings')
 
+-- User commands
 vim.api.nvim_create_user_command(
 	'TMNextTypeName',
 	function(opts)
@@ -17,5 +17,9 @@ vim.api.nvim_create_user_command(
 	end,
 	{ nargs = 1}
 )
+
+-- <Plugin> mappings
+vim.keymap.set('n', '<Plug>(MoveToNextId)', function() M.NextTypeName() end, { noremap = true }   )
+vim.keymap.set('n', '<Plug>(MoveToPrevId)', function() M.PrevTypeName() end, { noremap = true }   )
 
 return M
