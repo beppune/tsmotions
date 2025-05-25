@@ -160,7 +160,7 @@ end
 
 M.NextTypeName = function(type_name)
 	local args = {
-		type = 'node_type',
+		type = 'query',
 		query = type_name,
 	}
 	local _, after = unpack( walk(args) )
