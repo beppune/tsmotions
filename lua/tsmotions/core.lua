@@ -99,7 +99,7 @@ local function walk(conf)
 		local nodes = get_node_of_type(root, conf.query, nil)
 		iterator = type_name_iterator(nodes)
 	else
-		iterator = ts_query_iterator(root, query)
+		iterator = ts_query_iterator(root, conf.query)
 	end
 
 	local before = nil
@@ -124,7 +124,7 @@ local function walk(conf)
 	-- After the for loop іs not clear if the last node of the list
 	-- passed the inner if test so here 'after' is properly assigned nil
 	-- if effectivley there is no node ot type 'identifier' after the cursor
-	if not is_after_cursor(after, r - 1, v) then
+	if after ~= nil and not is_after_cursor(after, r - 1, v) then
 		after = nil
 	end
 
