@@ -10,6 +10,7 @@ local function debug_node(node)
 	print( vim.treesitter.get_node_text(node, bufnr) .. ": sr:" .. a .. ", sc:" .. b .. ", er:" .. c .. ", ec:" .. d .. " cursor: " .. r .. ", " .. v )
 end
 
+-- Utility function to ge the parѕet root tree
 local function get_tree()
 	p = vim.treesitter.get_parser(0, nil, { error = false })
 	if p ~= nil then
@@ -132,6 +133,7 @@ local function walk(conf)
 
 end
 
+-- Place cursor at the beginning of the given node range
 local function place_at_node(node)
 	if node ~= nil then
 		local sr, sc = node:range()
