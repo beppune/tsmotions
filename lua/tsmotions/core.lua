@@ -124,7 +124,7 @@ local function walk(conf)
 	-- After the for loop іs not clear if the last node of the list
 	-- passed the inner if test so here 'after' is properly assigned nil
 	-- if effectivley there is no node ot type 'identifier' after the cursor
-	if after ~= nil and not is_after_cursor(after, r - 1, v) then
+	if not is_after_cursor(after, r - 1, v) then
 		after = nil
 	end
 
