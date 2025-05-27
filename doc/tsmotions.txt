@@ -1,0 +1,24 @@
+*tsmotions.txt*	Configurable Treesitter Motions
+
+This plugin exposes commands to move cursor around
+using tree-sitter by specifying the node type to jump
+or a capture in a defineѕ query
+
+:TMNextTypeName	{node-type}	jump forward to the next {node-type}
+				after the cursor position
+
+:TMPrevTypeName	{node-type}	jump backwarѕ to the previouѕ {node-type}
+				before the cursor position
+
+:TMNextQuery {ts-query}		jump forward to the next *capture named*
+				node specified by the query
+
+:TMPrevQuery {ts-query}		jump back to the previouѕ *capture named*
+				node specified by the query
+
+				*tsm-examples*
+:TMNextQuery (block) @b
+
+:TMPrevTypeName function_definition
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
